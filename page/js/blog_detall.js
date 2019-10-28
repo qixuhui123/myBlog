@@ -35,7 +35,16 @@ var blogDetall = new Vue({
             var result = resp.data.data[0];
             blogDetall.title = result.title;
             blogDetall.content = result.content.replace(/<\/?.+?\/?>/g,"");
-            blogDetall.ctime = result.ctime;
+            function changeTime(time){
+                var commonTime = "";
+                time = time * 1000;
+                if(time){
+                    var unixTimestamp = new Date(time*1) ;
+                    commonTime = unixTimestamp.toLocaleString();
+                }
+                return commonTime;
+            }
+            blogDetall.ctime = changeTime(result.ctime);
             blogDetall.tags = result.tags;
             blogDetall.views = result.views;
         }).catch(function (resp) {
@@ -96,7 +105,6 @@ var sendComment = new Vue({
                 var name = document.getElementById("comment_name").value;
                 var email = document.getElementById("comment_email").value;
                 var content = document.getElementById("comment_content").value;
-                console.log( replyName);
                 axios({
                     method: "get",
                     url: "/addComment?bid=" + bid + "&parent=" + reply + "&userName=" + name + "&email=" + email + "&content=" + content + "&parentName=" + replyName
@@ -147,8 +155,17 @@ var blogComments = new Vue({
                 method:"get",
                 url:"/queryCommentsByBlogId?bid=" + bid
             }).then(function (resp) {
-                blogComments.comments = resp.data.data;
-
+                function changeTime(time){
+                    var commonTime = "";
+                    time = time * 1000;
+                    if(time){
+                        var unixTimestamp = new Date(time*1) ;
+                        commonTime = unixTimestamp.toLocaleString();
+                    }
+                    return commonTime;
+                }
+                blogComments.comments = resp.data.data
+                blogComments.comments[0].ctime = changeTime(resp.data.data[0].ctime)
                 for(var i =0; i<blogComments.comments.length;i ++){
 
                     if (blogComments.comments[i].parent > -1){
